@@ -50,17 +50,15 @@ class Transwriter:
         else:
             return False
 
-
-
     def cut_page(self):
         """
         切断纸张，另起一页
         :return: 返回新的一页纸张
         """
-        self.page.save("output/{}-{:0>2d}.png".format(self.save_path, self.curr_page_num), "PNG")
         self.pages.append(self.page)
         self.curr_page_num += 1
-        self.page = self.new_page()
+        self.new_page()
+        self.curr_height = self.padtop
 
     def save_paper(self):
         self.pages.append(self.page)
@@ -73,16 +71,14 @@ class Transwriter:
             txt_color = self.text_color
         font = ImageFont.truetype(font_name, size=font_size)
         para = textwrap.wrap(txt, width=maxW)
-        curr_h = h
+        self.curr_height = h
         for line in para:
             draw = ImageDraw.Draw(self.page)
-            draw.text((w, curr_h), line, font=font, fill=txt_color)
+            draw.text((w, self.curr_height), line, font=font, fill=txt_color)
             _, h = self.get_txt_size(line, font_size)
-            curr_h += h + pad
+            self.curr_height += h + pad
             if self.detect_bottom(font_size):
                 self.cut_page()
-                curr_h = self.padtop
-        return curr_h
 
     def title(self, txt):
         """
@@ -93,15 +89,45 @@ class Transwriter:
         """
         para = textwrap.wrap(txt, width=26)
         font_size = 80
-        self.curr_height, pad = 600, 20
+        self.curr_height = 600
         for line in para:
             w, h = self.get_txt_size(line, font_size)
             x = int((self.page_width - w) // 2)
             self.draw_txt(line, font_size, x, self.curr_height, txt_color=self.text_color_i)
-            self.curr_height += h + pad
+
+    def author(self, txt):
+        para = textwrap.wrap(txt, width=26)
+        font_size = 60
+        self.curr_height += 100
+        for line in para:
+            w, h = self.get_txt_size(line, font_size)
+            x = int((self.page_width - w) // 2)
+            self.draw_txt(line, font_size, x, self.curr_height)
+
+    def abstarction(self, txt):
+        # 留出 标题与摘要之间的间距
+        self.curr_height += 200
+        # 第一行
+        self.draw_txt("ABSTRACTION", 60, self.padleft, self.curr_height, txt_color=self.text_color_i)
+        self.curr_height += 20
+        self.draw_txt(txt, 60, self.padleft, self.curr_height, maxW=40)
+
+    def get_lines_from_file(self, file_path):
+        f = open(file_path)
+        lines = []
+        line = f.readline()
+        while line:
+            l = line.replace('\n', '')
+            if len(l) > 0:
+                lines.append(l)
+            line = f.readline()
+        return lines
 
 if __name__ == '__main__':
     t = Transwriter()
     t.new_page()
     t.title("Writing specification instruction")
+    t.author("apin")
+    lines = t.get_lines_from_file("txt/longtxt")
+    t.abstarction(lines[0])
     t.save_paper()
