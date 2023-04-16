@@ -128,7 +128,6 @@ def get_lines_from_file(file_path):
     return lines
 
 if __name__ == '__main__':
-    print(get_txt_size("a", 0))
     img = init_img()
     title_txt = "Ad astra abyssosque"
     curr_h = title(img, title_txt)
@@ -136,3 +135,4 @@ if __name__ == '__main__':
     lines = get_lines_from_file("txt/longtxt")
     curr_h = abstarct(img, lines[0], curr_h)
     img.show("hello")
+    save_img(img, "hello")
