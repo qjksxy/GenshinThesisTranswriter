@@ -11,14 +11,15 @@ class Transwriter:
         self.padtop, self.padbottom, self.padleft, self.padright = 200, 200, 200, 200 # 纸张边距
         self.text_color = "#5A5359" # 文字颜色
         self.text_color_i = "#312520" # 强调颜色
-        # self.page_bg = (248, 224, 181) # 纸张颜色
-        self.page_bg = "#F5DEB3"
-        # self.page_bg = "#FFFFFF"
+        self.page_bg = "#F5DEB3" # 纸张颜色
         self.curr_page_num = 1 # 当前页码
         self.page = None # 当前页面
         self.save_path = "Writing_specification_instruction"
         self.curr_height = 0
         self.pages=[]
+        self.first_heading_index = 1
+        self.second_heading_index = 1
+        self.reference_index = 1
 
     def new_page(self):
         self.page = Image.new('RGB', (self.page_width, self.page_height), color=self.page_bg)
@@ -63,12 +64,28 @@ class Transwriter:
         self.curr_height = self.padtop
 
     def save_paper(self):
+        """
+        将论文保存为图片
+        :return:
+        """
         self.pages.append(self.page)
         for i in range(self.curr_page_num):
             page = self.pages[i]
             page.save("output/{}-{:0>2d}.png".format(self.save_path, i + 1), "PNG")
 
     def draw_txt(self, txt, font_size, w, h, font_name=FONT_TCLR, maxW=80, pad=15, txt_color=None, equispaced=True):
+        """
+        绘制文字
+        :param txt: 文字
+        :param font_size: 文字大小
+        :param w: 绘制起始位置的宽度坐标
+        :param h: 绘制起始位置的高度坐标
+        :param font_name: 字体名
+        :param maxW: 每行最多字符数
+        :param pad: 折行时行与行之间的间隔
+        :param txt_color: 文字颜色
+        :param equispaced: 是否每行均分间隔（最后一行不均分）
+        """
         if txt_color == None:
             txt_color = self.text_color
         font = ImageFont.truetype(font_name, size=font_size)
@@ -96,7 +113,11 @@ class Transwriter:
             self.curr_height += h + pad
 
     def draw_pic(self):
-        img = Image.open("imgs/abcde.png")
+        """
+        绘制首图
+        :return:
+        """
+        img = Image.open("imgs/sheng.png")
         _, _, _, a = img.split()
         x = int((self.page_width - img.width)//2)
         self.page.paste(img, (x, 400), mask=a)
@@ -110,13 +131,21 @@ class Transwriter:
         """
         para = textwrap.wrap(txt, width=35)
         font_size = 60
-        self.curr_height = 800
+        self.curr_height = 1000
         for line in para:
             w, h = self.get_txt_size(line, font_size)
             x = int((self.page_width - w) // 2)
             self.draw_txt(line, font_size, x, self.curr_height, txt_color=self.text_color_i, equispaced=False)
 
     def author(self, txt):
+        """
+        设置文章作者
+        每行最多 30 字符
+        字号 40
+        与标题间距 80
+        :param txt:
+        :return:
+        """
         para = textwrap.wrap(txt, width=30)
         font_size = 40
         self.curr_height += 80
@@ -125,23 +154,138 @@ class Transwriter:
             x = int((self.page_width - w) // 2)
             self.draw_txt(line, font_size, x, self.curr_height, equispaced=False)
 
-    def abstarction(self, txt):
+    def abstract(self, txt):
+        """
+        设置摘要
+        :param txt: 摘要文本
+        :return:
+        """
         # 留出 标题与摘要之间的间距
         self.curr_height += 200
         # 第一行
-        self.draw_txt("ABSTRACTION", 40, self.padleft, self.curr_height, txt_color=self.text_color_i, equispaced=False)
+        self.draw_txt("ABSTRACT", 40, self.padleft, self.curr_height, txt_color=self.text_color_i, equispaced=False)
         self.curr_height += 20
         self.draw_txt(txt, 30, self.padleft, self.curr_height, maxW=85)
 
-    def content(self, lines):
-        # 留出 标题与摘要之间的间距
+    def indexterms(self, txt):
+        """
+        添加关键字
+        :return:
+        """
+        self.curr_height += 50
+        self.draw_txt("INDEX TERMS", 40, self.padleft, self.curr_height, txt_color=self.text_color_i, equispaced=False)
+        self.curr_height += 20
+        self.draw_txt(txt, 30, self.padleft, self.curr_height, maxW=85)
+
+    def num2letter(self, num):
+        letter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
+                  'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+                  'w', 'x', 'y', 'z']
+        temp = []
+        res = ""
+        while(num > 0):
+            num -= 1
+            temp.append(letter[num % 26])
+            num = num // 26
+        for i in range(len(temp)):
+            l = len(temp) - i - 1
+            res += temp[l]
+        return res
+
+    def num2rom(self, num):
+        """
+        整数转罗马字母
+        :param num:
+        """
+        c = {0: ("", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"),
+             1: ("", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"),
+             2: ("", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"),
+             3: ("", "M", "MM", "MMM")}
+        roman = []
+        roman.append(c[3][num // 1000 % 10])
+        roman.append(c[2][num // 100 % 10])
+        roman.append(c[1][num // 10 % 10])
+        roman.append(c[0][num % 10])
+        s = ''
+        for i in roman:
+            s = s + i
+        return s
+
+    def first_heading(self, heading):
+        """
+        设置一级标题
+        :param heading:
+        :return:
+        """
         self.curr_height += 100
+        self.draw_txt(self.num2letter(self.first_heading_index) + " " + heading, 40, self.padleft, self.curr_height,
+                      txt_color=self.text_color_i, equispaced=False)
+        self.first_heading_index += 1
+        self.second_heading_index = 1
+
+    def content(self, title, lines):
+        """设置正文"""
+        # 留出 标题与摘要之间的间距
+        self.curr_height += 50
         # 第一行
-        self.draw_txt("CONTENT", 40, self.padleft, self.curr_height, txt_color=self.text_color_i, equispaced=False)
+        self.draw_txt(self.num2rom(self.second_heading_index) + " " + title, 35, self.padleft, self.curr_height,
+                      txt_color=self.text_color_i, equispaced=False)
+        self.second_heading_index += 1
         self.curr_height += 20
         for line in lines:
             self.draw_txt(line, 30, self.padleft, self.curr_height, maxW=85)
             self.curr_height += 20
+
+
+    def acknowledgments(self, txt):
+        """
+        致谢部分
+        致谢最后默认附加：
+        礼赞摩诃善法大吉祥智慧主
+        :return:
+        """
+        self.curr_height += 100
+        self.draw_txt("ACKNOWLEDGMENTS", 35, self.padleft, self.curr_height,
+                      txt_color=self.text_color_i, equispaced=False)
+        self.curr_height += 20
+        if len(txt) > 0:
+            self.draw_txt(txt, 30, self.padleft, self.curr_height, maxW=85)
+            self.curr_height += 15
+        txt = "pay tribute to the Blessed One of Wisdom Mahakusaladhamma"
+        self.draw_txt(txt, 30, self.padleft, self.curr_height, maxW=85)
+
+    def add_references(self, thesis, authors, time):
+        """
+        添加参考文献
+        时间采用原式纪年，以2020年为元年，2021年为1年，精确至日期
+        :param thesis: 文献名
+        :param authors: 文献作者
+        :param time: 时间,格式为 (y,m,d)，如(1,12,14),为 2020-12-14
+        :return:
+        """
+        if time[0] > 2019:
+            year = self.num2letter(time[0] - 2019)
+        else:
+            year = self.num2letter(time[0])
+        month = self.num2letter(time[1])
+        day = self.num2letter(time[2])
+        index = self.num2letter(self.reference_index)
+        txt = authors + " " + year + " " + month + " " + day
+
+        if (self.reference_index == 1):
+            # size of "REFERENCES", 40 is (366, 41)
+            # 另起一页居中写 REFERENCES
+            self.cut_page()
+            w = int((self.page_width - 366) // 2)
+            self.draw_txt("REFERENCES", 40, w, self.curr_height,
+                          txt_color=self.text_color_i, equispaced=False)
+            self.curr_height += 100
+        _, h = self.get_txt_size(index, 30)
+        self.draw_txt(index, 30, self.padleft, self.curr_height)
+        self.curr_height = self.curr_height - h - 15
+        self.draw_txt(thesis, 30, self.padleft + 60, self.curr_height)
+        self.draw_txt(txt, 30, self.padleft + 60, self.curr_height)
+        self.reference_index += 1
 
     def get_lines_from_file(self, file_path):
         f = open(file_path)
@@ -153,16 +297,3 @@ class Transwriter:
                 lines.append(l)
             line = f.readline()
         return lines
-
-if __name__ == '__main__':
-    t = Transwriter()
-    t.save_path="The_Byakuyakoku_Collection_Vol2"
-    t.new_page()
-    t.draw_pic()
-    t.title("The Byakuyakoku Collection Vol II")
-    t.author("apin")
-    ab = t.get_lines_from_file("txt/abstruction")
-    t.abstarction(ab[0])
-    content = t.get_lines_from_file("txt/content")
-    t.content(content)
-    t.save_paper()
