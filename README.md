@@ -4,7 +4,7 @@ GTT，原神论文转写器。可以通过英文文本生成提瓦特语的论�
 
 ## 项目展示
 
-![示例](https://github.com/qjksxy/GenshinThesisTranswriter/blob/master/imgs/miao.png)
+![示例](https://github.com/qjksxy/GenshinThesisTranswriter/blob/master/github/test-01.png)
 
 ## 使用说明
 
