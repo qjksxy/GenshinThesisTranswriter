@@ -96,7 +96,7 @@ class Transwriter:
             self.curr_height += h + pad
 
     def draw_pic(self):
-        img = Image.open("imgs/abcde.png")
+        img = Image.open("imgs/sheng.png")
         _, _, _, a = img.split()
         x = int((self.page_width - img.width)//2)
         self.page.paste(img, (x, 400), mask=a)
