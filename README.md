@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://v2.nonebot.dev/logo.png" width="200" height="200" alt="nonebot">
+  <img src="https://github.com/qjksxy/GenshinThesisTranswriter/blob/master/github/logo.png" width="650" height="400">
 
 # GenshinThesisTranswriter
 
