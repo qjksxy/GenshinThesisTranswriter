@@ -10,7 +10,7 @@ FONT_KLR = "fonts/KLR.ttf"  # 坎瑞亚文字
 class Transwriter:
     def __init__(self):
         self.page_width, self.page_height = 2479, 3508 # 纸张像素尺寸，以 300ppi A4 为例
-        self.padtop, self.padbottom, self.padleft, self.padright = 200, 200, 400, 400 # 纸张边距
+        self.padtop, self.padbottom, self.padleft, self.padright = 250, 200, 400, 400 # 纸张边距
         self.text_color = "#5A5359" # 文字颜色
         self.text_color_i = "#312520" # 强调颜色
         self.page_bg = "#F5DEB3" # 纸张颜色
@@ -22,6 +22,7 @@ class Transwriter:
         self.first_heading_index = 1
         self.second_heading_index = 1
         self.reference_index = 1
+        self.curr_first_heading = ""
 
     def new_page(self):
         self.page = Image.new('RGB', (self.page_width, self.page_height), color=self.page_bg)
@@ -63,11 +64,26 @@ class Transwriter:
         self.pages.append(self.page)
         self.curr_page_num += 1
         self.new_page()
+        # 写页码以及标题
+        # 偶数页码在左侧，奇数页码在右侧
+        w, _ = self.get_txt_size(self.curr_first_heading, 24)
+        page_num = self.num2letter(self.curr_page_num)
+        w2, _ = self.get_txt_size(page_num, 24)
+        if self.curr_page_num % 2 == 0:
+            pagenum_w = self.padleft
+            head_w = self.page_width - self.padright - w
+        else:
+            pagenum_w = self.page_width - self.padright - w2
+            head_w = self.padleft
+        self.draw_txt(page_num, 24, pagenum_w, 140)
+        self.draw_txt(self.curr_first_heading, 24, head_w, 140, maxW=60, pad=5)
         self.curr_height = self.padtop
 
     def save_paper(self):
         if not os.path.exists("output/{}".format(self.save_path)):
             os.makedirs("output/{}".format(self.save_path))
+        # draw = ImageDraw.Draw(self.page)
+        # draw.line((self.padleft, self.curr_height + 20, self.padright, self.curr_height + 20), fill = "#7F7F7F")
         self.pages.append(self.page)
         for i in range(self.curr_page_num):
             page = self.pages[i]
@@ -133,12 +149,12 @@ class Transwriter:
 
     def title(self, txt):
         """
-        设置文章标题，每行长度限制在 35 个字符，过长则换行
-        标题位置： w=0, h=500, 宽度居中。字体大小=60
+        设置文章标题，每行长度限制在 32 个字符，过长则换行
+        标题位置： w=0, h=1000, 宽度居中。字体大小=60
         :param txt: 标题内容
         :return: 标题结束位置高度
         """
-        para = textwrap.wrap(txt, width=35)
+        para = textwrap.wrap(txt, width=32)
         font_size = 60
         self.curr_height = 1000
         for line in para:
@@ -226,6 +242,7 @@ class Transwriter:
         :param heading:
         :return:
         """
+        self.curr_first_heading = heading
         self.curr_height += 100
         txt = self.num2letter(self.first_heading_index) + " " + heading
         w, _ = self.get_txt_size(txt, 40)

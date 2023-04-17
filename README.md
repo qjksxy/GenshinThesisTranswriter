@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/qjksxy/GenshinThesisTranswriter/blob/master/github/logo.png" width="325" height="200">
+  <img src="https://github.com/qjksxy/GenshinThesisTranswriter/blob/master/github/logoGtt.png" width="300" height="200">
 
 # GenshinThesisTranswriter
 
