@@ -1,6 +1,8 @@
 from PIL import Image, ImageDraw, ImageFont
+from reportlab.pdfgen import canvas
 import textwrap
 import re
+import os
 
 FONT_TCLR = "fonts/TCLR.ttf"  # 提瓦特通用语
 FONT_KLR = "fonts/KLR.ttf"  # 坎瑞亚文字
@@ -8,7 +10,7 @@ FONT_KLR = "fonts/KLR.ttf"  # 坎瑞亚文字
 class Transwriter:
     def __init__(self):
         self.page_width, self.page_height = 2479, 3508 # 纸张像素尺寸，以 300ppi A4 为例
-        self.padtop, self.padbottom, self.padleft, self.padright = 200, 200, 200, 200 # 纸张边距
+        self.padtop, self.padbottom, self.padleft, self.padright = 200, 200, 400, 400 # 纸张边距
         self.text_color = "#5A5359" # 文字颜色
         self.text_color_i = "#312520" # 强调颜色
         self.page_bg = "#F5DEB3" # 纸张颜色
@@ -64,16 +66,22 @@ class Transwriter:
         self.curr_height = self.padtop
 
     def save_paper(self):
-        """
-        将论文保存为图片
-        :return:
-        """
+        if not os.path.exists("output/{}".format(self.save_path)):
+            os.makedirs("output/{}".format(self.save_path))
         self.pages.append(self.page)
         for i in range(self.curr_page_num):
             page = self.pages[i]
-            page.save("output/{}-{:0>2d}.png".format(self.save_path, i + 1), "PNG")
+            page.save("output/{}/{}-{:0>2d}.png".format(self.save_path, self.save_path, i + 1), "PNG")
+        pdf_size = (2479, 3508)
+        pdf = canvas.Canvas("output/{}/{}.pdf".format(self.save_path, self.save_path))
+        pdf.setPageSize(pdf_size)
+        for i in range(self.curr_page_num):
+            page_file = "output/{}/{}-{:0>2d}.png".format(self.save_path, self.save_path, i + 1)
+            pdf.drawImage(page_file, 0, 0, self.page_width, self.page_height)
+            pdf.showPage()
+        pdf.save()
 
-    def draw_txt(self, txt, font_size, w, h, font_name=FONT_TCLR, maxW=80, pad=15, txt_color=None, equispaced=True):
+    def draw_txt(self, txt, font_size, w, h, font_name=FONT_TCLR, maxW=65, pad=15, txt_color=None, equispaced=True):
         """
         绘制文字
         :param txt: 文字
@@ -112,15 +120,16 @@ class Transwriter:
             _, h = self.get_txt_size(para[li], font_size)
             self.curr_height += h + pad
 
-    def draw_pic(self):
+    def draw_pic(self, pic):
         """
         绘制首图
+        :param pic: 图片路径
         :return:
         """
-        img = Image.open("imgs/sheng.png")
+        img = Image.open(pic)
         _, _, _, a = img.split()
         x = int((self.page_width - img.width)//2)
-        self.page.paste(img, (x, 400), mask=a)
+        self.page.paste(img, (x, 380), mask=a)
 
     def title(self, txt):
         """
@@ -165,7 +174,7 @@ class Transwriter:
         # 第一行
         self.draw_txt("ABSTRACT", 40, self.padleft, self.curr_height, txt_color=self.text_color_i, equispaced=False)
         self.curr_height += 20
-        self.draw_txt(txt, 30, self.padleft, self.curr_height, maxW=85)
+        self.draw_txt(txt, 30, self.padleft, self.curr_height)
 
     def indexterms(self, txt):
         """
@@ -175,7 +184,7 @@ class Transwriter:
         self.curr_height += 50
         self.draw_txt("INDEX TERMS", 40, self.padleft, self.curr_height, txt_color=self.text_color_i, equispaced=False)
         self.curr_height += 20
-        self.draw_txt(txt, 30, self.padleft, self.curr_height, maxW=85)
+        self.draw_txt(txt, 30, self.padleft, self.curr_height)
 
     def num2letter(self, num):
         letter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
@@ -218,7 +227,10 @@ class Transwriter:
         :return:
         """
         self.curr_height += 100
-        self.draw_txt(self.num2letter(self.first_heading_index) + " " + heading, 40, self.padleft, self.curr_height,
+        txt = self.num2letter(self.first_heading_index) + " " + heading
+        w, _ = self.get_txt_size(txt, 40)
+        w = int((self.page_width - w) // 2)
+        self.draw_txt(txt, 40, w, self.curr_height,
                       txt_color=self.text_color_i, equispaced=False)
         self.first_heading_index += 1
         self.second_heading_index = 1
@@ -233,7 +245,7 @@ class Transwriter:
         self.second_heading_index += 1
         self.curr_height += 20
         for line in lines:
-            self.draw_txt(line, 30, self.padleft, self.curr_height, maxW=85)
+            self.draw_txt(line, 30, self.padleft, self.curr_height)
             self.curr_height += 20
 
 
@@ -249,10 +261,10 @@ class Transwriter:
                       txt_color=self.text_color_i, equispaced=False)
         self.curr_height += 20
         if len(txt) > 0:
-            self.draw_txt(txt, 30, self.padleft, self.curr_height, maxW=85)
+            self.draw_txt(txt, 30, self.padleft, self.curr_height)
             self.curr_height += 15
         txt = "pay tribute to the Blessed One of Wisdom Mahakusaladhamma"
-        self.draw_txt(txt, 30, self.padleft, self.curr_height, maxW=85)
+        self.draw_txt(txt, 30, self.padleft, self.curr_height)
 
     def add_references(self, thesis, authors, time):
         """
