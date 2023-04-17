@@ -11,9 +11,7 @@ class Transwriter:
         self.padtop, self.padbottom, self.padleft, self.padright = 200, 200, 200, 200 # 纸张边距
         self.text_color = "#5A5359" # 文字颜色
         self.text_color_i = "#312520" # 强调颜色
-        # self.page_bg = (248, 224, 181) # 纸张颜色
-        self.page_bg = "#F5DEB3"
-        # self.page_bg = "#FFFFFF"
+        self.page_bg = "#F5DEB3" # 纸张颜色
         self.curr_page_num = 1 # 当前页码
         self.page = None # 当前页面
         self.save_path = "Writing_specification_instruction"
@@ -63,12 +61,28 @@ class Transwriter:
         self.curr_height = self.padtop
 
     def save_paper(self):
+        """
+        将论文保存为图片
+        :return:
+        """
         self.pages.append(self.page)
         for i in range(self.curr_page_num):
             page = self.pages[i]
             page.save("output/{}-{:0>2d}.png".format(self.save_path, i + 1), "PNG")
 
     def draw_txt(self, txt, font_size, w, h, font_name=FONT_TCLR, maxW=80, pad=15, txt_color=None, equispaced=True):
+        """
+        绘制文字
+        :param txt: 文字
+        :param font_size: 文字大小
+        :param w: 绘制起始位置的宽度坐标
+        :param h: 绘制起始位置的高度坐标
+        :param font_name: 字体名
+        :param maxW: 每行最多字符数
+        :param pad: 折行时行与行之间的间隔
+        :param txt_color: 文字颜色
+        :param equispaced: 是否每行均分间隔（最后一行不均分）
+        """
         if txt_color == None:
             txt_color = self.text_color
         font = ImageFont.truetype(font_name, size=font_size)
@@ -96,6 +110,10 @@ class Transwriter:
             self.curr_height += h + pad
 
     def draw_pic(self):
+        """
+        绘制首图
+        :return:
+        """
         img = Image.open("imgs/sheng.png")
         _, _, _, a = img.split()
         x = int((self.page_width - img.width)//2)
@@ -117,6 +135,14 @@ class Transwriter:
             self.draw_txt(line, font_size, x, self.curr_height, txt_color=self.text_color_i, equispaced=False)
 
     def author(self, txt):
+        """
+        设置文章作者
+        每行最多 30 字符
+        字号 40
+        与标题间距 80
+        :param txt:
+        :return:
+        """
         para = textwrap.wrap(txt, width=30)
         font_size = 40
         self.curr_height += 80
@@ -126,6 +152,11 @@ class Transwriter:
             self.draw_txt(line, font_size, x, self.curr_height, equispaced=False)
 
     def abstarction(self, txt):
+        """
+        设置摘要
+        :param txt: 摘要文本
+        :return:
+        """
         # 留出 标题与摘要之间的间距
         self.curr_height += 200
         # 第一行
@@ -134,6 +165,7 @@ class Transwriter:
         self.draw_txt(txt, 30, self.padleft, self.curr_height, maxW=85)
 
     def content(self, lines):
+        """设置正文"""
         # 留出 标题与摘要之间的间距
         self.curr_height += 100
         # 第一行
@@ -153,16 +185,3 @@ class Transwriter:
                 lines.append(l)
             line = f.readline()
         return lines
-
-if __name__ == '__main__':
-    t = Transwriter()
-    t.save_path="The_Byakuyakoku_Collection_Vol2"
-    t.new_page()
-    t.draw_pic()
-    t.title("The Byakuyakoku Collection Vol II")
-    t.author("apin")
-    ab = t.get_lines_from_file("txt/abstruction")
-    t.abstarction(ab[0])
-    content = t.get_lines_from_file("txt/content")
-    t.content(content)
-    t.save_paper()
