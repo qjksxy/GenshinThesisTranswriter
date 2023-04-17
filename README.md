@@ -1,6 +1,18 @@
+<div align="center">
+  <img src="https://github.com/qjksxy/GenshinThesisTranswriter/blob/master/github/logo.png" width="650" height="400">
+
 # GenshinThesisTranswriter
 
-GTT，原神论文转写器。可以通过英文文本生成提瓦特语的论文，小巧易用。
+_✨ GTT，原神论文转写器。可以通过英文文本生成提瓦特语的论文，小巧易用 ✨_
+
+<p align="center">
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="license">
+</p>
+
+</div>
+
+# GenshinThesisTranswriter
+
 
 ## 项目展示
 
