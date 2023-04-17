@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/qjksxy/GenshinThesisTranswriter/blob/master/github/logo.png" width="650" height="400">
+  <img src="https://github.com/qjksxy/GenshinThesisTranswriter/blob/master/github/logo.png" width="325" height="200">
 
 # GenshinThesisTranswriter
 
@@ -11,7 +11,6 @@ _✨ GTT，原神论文转写器。可以通过英文文本生成提瓦特语的
 
 </div>
 
-# GenshinThesisTranswriter
 
 
 ## 项目展示
