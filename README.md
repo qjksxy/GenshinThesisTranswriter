@@ -22,8 +22,6 @@ _✨ GTT，原神论文转写器。可以通过英文文本生成提瓦特语的
 <td><img src="https://github.com/qjksxy/GenshinThesisTranswriter/blob/master/github/test-06.png" border=0></td>
 </tr></table>
 
-![示例]()
-
 ## 使用说明
 
 克隆本项目，然后运行 main.py 即可。
