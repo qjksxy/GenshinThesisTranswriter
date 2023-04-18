@@ -7,22 +7,24 @@ import os
 FONT_TCLR = "fonts/TCLR.ttf"  # 提瓦特通用语
 FONT_KLR = "fonts/KLR.ttf"  # 坎瑞亚文字
 
+
 class Transwriter:
     def __init__(self):
-        self.page_width, self.page_height = 2479, 3508 # 纸张像素尺寸，以 300ppi A4 为例
-        self.padtop, self.padbottom, self.padleft, self.padright = 250, 200, 400, 400 # 纸张边距
-        self.text_color = "#5A5359" # 文字颜色
-        self.text_color_i = "#312520" # 强调颜色
-        self.page_bg = "#F5DEB3" # 纸张颜色
-        self.curr_page_num = 1 # 当前页码
-        self.page = None # 当前页面
-        self.save_path = "Writing_specification_instruction"
+        self.page_width, self.page_height = 2479, 3508  # 纸张像素尺寸，以 300ppi A4 为例
+        self.padtop, self.padbottom, self.padleft, self.padright = 250, 200, 400, 400  # 纸张边距
+        self.text_color = "#5A5359"  # 文字颜色
+        self.text_color_i = "#312520"  # 强调颜色
+        self.gen_color = "#7F7F7F"  # 辅助颜色
+        self.page_bg = "#F5DEB3"  # 纸张颜色
+        self.curr_page_num = 1  # 当前页码
+        self.page = None  # 当前页面
+        self.save_path = "foo"
         self.curr_height = 0
-        self.pages=[]
+        self.pages = []
+        self.curr_first_heading = ""
         self.first_heading_index = 1
         self.second_heading_index = 1
         self.reference_index = 1
-        self.curr_first_heading = ""
 
     def new_page(self):
         self.page = Image.new('RGB', (self.page_width, self.page_height), color=self.page_bg)
@@ -75,15 +77,24 @@ class Transwriter:
         else:
             pagenum_w = self.page_width - self.padright - w2
             head_w = self.padleft
-        self.draw_txt(page_num, 24, pagenum_w, 140)
-        self.draw_txt(self.curr_first_heading, 24, head_w, 140, maxW=60, pad=5)
+        self.draw_txt(page_num, 24, pagenum_w, 140, txt_color=self.gen_color)
+        self.draw_txt(self.curr_first_heading, 24, head_w, 140, maxW=60, pad=5, txt_color=self.gen_color)
         self.curr_height = self.padtop
 
     def save_paper(self):
         if not os.path.exists("output/{}".format(self.save_path)):
             os.makedirs("output/{}".format(self.save_path))
-        # draw = ImageDraw.Draw(self.page)
-        # draw.line((self.padleft, self.curr_height + 20, self.padright, self.curr_height + 20), fill = "#7F7F7F")
+        draw = ImageDraw.Draw(self.page)
+        center = int(self.page_width // 2)
+        draw.line((self.padleft, self.curr_height + 50, center - 40, self.curr_height + 50),
+                  fill=self.gen_color, width=3)
+        draw.line((center + 40, self.curr_height + 50, self.page_width - self.padright, self.curr_height + 50),
+                  fill=self.gen_color, width=3)
+        img = Image.open("imgs/end40.png")
+        _, _, _, a = img.split()
+        x = center - 20
+        self.page.paste(img, (x, self.curr_height + 30), mask=a)
+
         self.pages.append(self.page)
         for i in range(self.curr_page_num):
             page = self.pages[i]
@@ -119,7 +130,7 @@ class Transwriter:
             if self.detect_bottom(font_size):
                 self.cut_page()
             draw = ImageDraw.Draw(self.page)
-            if equispaced and li != len(para)-1:
+            if equispaced and li != len(para) - 1:
                 words = re.split(r'\W+', para[li])
                 sum_width, curr_w = 0, w
                 ws = []
@@ -144,7 +155,7 @@ class Transwriter:
         """
         img = Image.open(pic)
         _, _, _, a = img.split()
-        x = int((self.page_width - img.width)//2)
+        x = int((self.page_width - img.width) // 2)
         self.page.paste(img, (x, 380), mask=a)
 
     def title(self, txt):
@@ -208,7 +219,7 @@ class Transwriter:
                   'w', 'x', 'y', 'z']
         temp = []
         res = ""
-        while(num > 0):
+        while (num > 0):
             num -= 1
             temp.append(letter[num % 26])
             num = num // 26
@@ -264,7 +275,6 @@ class Transwriter:
         for line in lines:
             self.draw_txt(line, 30, self.padleft, self.curr_height)
             self.curr_height += 20
-
 
     def acknowledgments(self, txt):
         """

@@ -1,8 +1,8 @@
 from Transwriter import Transwriter
 
 if __name__ == '__main__':
+    # 创建对象并开始第一页
     t = Transwriter()
-    # 开始第一页
     t.new_page()
     # 绘制首图
     t.draw_pic("imgs/zhi.png")
