@@ -7,22 +7,23 @@ import os
 FONT_TCLR = "fonts/TCLR.ttf"  # 提瓦特通用语
 FONT_KLR = "fonts/KLR.ttf"  # 坎瑞亚文字
 
+
 class Transwriter:
     def __init__(self):
-        self.page_width, self.page_height = 2479, 3508 # 纸张像素尺寸，以 300ppi A4 为例
-        self.padtop, self.padbottom, self.padleft, self.padright = 250, 200, 400, 400 # 纸张边距
-        self.text_color = "#5A5359" # 文字颜色
-        self.text_color_i = "#312520" # 强调颜色
-        self.page_bg = "#F5DEB3" # 纸张颜色
-        self.curr_page_num = 1 # 当前页码
-        self.page = None # 当前页面
-        self.save_path = "Writing_specification_instruction"
+        self.page_width, self.page_height = 2479, 3508  # 纸张像素尺寸，以 300ppi A4 为例
+        self.padtop, self.padbottom, self.padleft, self.padright = 250, 200, 400, 400  # 纸张边距
+        self.text_color = "#5A5359"  # 文字颜色
+        self.text_color_i = "#312520"  # 强调颜色
+        self.page_bg = "#F5DEB3"  # 纸张颜色
+        self.curr_page_num = 1  # 当前页码
+        self.page = None  # 当前页面
+        self.save_path = "foo"
         self.curr_height = 0
-        self.pages=[]
+        self.pages = []
+        self.curr_first_heading = ""
         self.first_heading_index = 1
         self.second_heading_index = 1
         self.reference_index = 1
-        self.curr_first_heading = ""
 
     def new_page(self):
         self.page = Image.new('RGB', (self.page_width, self.page_height), color=self.page_bg)
@@ -119,7 +120,7 @@ class Transwriter:
             if self.detect_bottom(font_size):
                 self.cut_page()
             draw = ImageDraw.Draw(self.page)
-            if equispaced and li != len(para)-1:
+            if equispaced and li != len(para) - 1:
                 words = re.split(r'\W+', para[li])
                 sum_width, curr_w = 0, w
                 ws = []
@@ -144,7 +145,7 @@ class Transwriter:
         """
         img = Image.open(pic)
         _, _, _, a = img.split()
-        x = int((self.page_width - img.width)//2)
+        x = int((self.page_width - img.width) // 2)
         self.page.paste(img, (x, 380), mask=a)
 
     def title(self, txt):
@@ -208,7 +209,7 @@ class Transwriter:
                   'w', 'x', 'y', 'z']
         temp = []
         res = ""
-        while(num > 0):
+        while (num > 0):
             num -= 1
             temp.append(letter[num % 26])
             num = num // 26
@@ -264,7 +265,6 @@ class Transwriter:
         for line in lines:
             self.draw_txt(line, 30, self.padleft, self.curr_height)
             self.curr_height += 20
-
 
     def acknowledgments(self, txt):
         """
