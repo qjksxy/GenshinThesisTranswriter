@@ -14,6 +14,7 @@ class Transwriter:
         self.padtop, self.padbottom, self.padleft, self.padright = 250, 200, 400, 400  # 纸张边距
         self.text_color = "#5A5359"  # 文字颜色
         self.text_color_i = "#312520"  # 强调颜色
+        self.gen_color = "#7F7F7F"  # 辅助颜色
         self.page_bg = "#F5DEB3"  # 纸张颜色
         self.curr_page_num = 1  # 当前页码
         self.page = None  # 当前页面
@@ -76,15 +77,24 @@ class Transwriter:
         else:
             pagenum_w = self.page_width - self.padright - w2
             head_w = self.padleft
-        self.draw_txt(page_num, 24, pagenum_w, 140)
-        self.draw_txt(self.curr_first_heading, 24, head_w, 140, maxW=60, pad=5)
+        self.draw_txt(page_num, 24, pagenum_w, 140, txt_color=self.gen_color)
+        self.draw_txt(self.curr_first_heading, 24, head_w, 140, maxW=60, pad=5, txt_color=self.gen_color)
         self.curr_height = self.padtop
 
     def save_paper(self):
         if not os.path.exists("output/{}".format(self.save_path)):
             os.makedirs("output/{}".format(self.save_path))
-        # draw = ImageDraw.Draw(self.page)
-        # draw.line((self.padleft, self.curr_height + 20, self.padright, self.curr_height + 20), fill = "#7F7F7F")
+        draw = ImageDraw.Draw(self.page)
+        center = int(self.page_width // 2)
+        draw.line((self.padleft, self.curr_height + 50, center - 40, self.curr_height + 50),
+                  fill=self.gen_color, width=3)
+        draw.line((center + 40, self.curr_height + 50, self.page_width - self.padright, self.curr_height + 50),
+                  fill=self.gen_color, width=3)
+        img = Image.open("imgs/end40.png")
+        _, _, _, a = img.split()
+        x = center - 20
+        self.page.paste(img, (x, self.curr_height + 30), mask=a)
+
         self.pages.append(self.page)
         for i in range(self.curr_page_num):
             page = self.pages[i]
