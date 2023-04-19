@@ -6,7 +6,7 @@ import os
 
 FONT_TCLR = "fonts/TCLR.ttf"  # 提瓦特通用语
 FONT_KLR = "fonts/KLR.ttf"  # 坎瑞亚文字
-
+FONT_CN = "fonts/NotoSansCJK-Regular.ttc"
 
 class Transwriter:
     def __init__(self):
@@ -29,14 +29,14 @@ class Transwriter:
     def new_page(self):
         self.page = Image.new('RGB', (self.page_width, self.page_height), color=self.page_bg)
 
-    def get_txt_size(self, txt, font_size):
+    def get_txt_size(self, txt, font_size, font=FONT_TCLR):
         """
         获取文字大小
         :param txt:
         :param font_size:
         :return: 返回文字占用的宽和高
         """
-        font = ImageFont.truetype(FONT_TCLR, size=font_size)
+        font = ImageFont.truetype(font, size=font_size)
         left, top, right, bottom = font.getbbox(txt)
         w = right - left
         h = bottom - top
