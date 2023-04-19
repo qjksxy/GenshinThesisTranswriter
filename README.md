@@ -32,8 +32,8 @@ main.py 文件中有使用的充分注释信息，只需要略作修改便可快
 from Transwriter import Transwriter
 
 if __name__ == '__main__':
+    # 初始化转写器
     t = Transwriter()
-    # 开始第一页
     t.new_page()
     # 绘制首图
     t.draw_pic("imgs/zhi.png")
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     # 添加参考文献 参数为 论文题目 论文作者 论文发表时间
     t.add_references("baiyeguowangshi", "abeiduo shatang xiangling", (1, 12, 23))
     t.add_references("baiyeguochenhunji", "xiangling zhongli alisi", (2, 2, 3))
-    # 设置生成的文件名，输出路径为 output/${filename}-${pages}.png
+    # 设置生成的文件名，输出路径为 output/${filename}/
     t.save_path = "test"
     # 保存论文
     t.save_paper()
